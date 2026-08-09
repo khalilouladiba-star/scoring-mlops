@@ -1,0 +1,14 @@
+pandas
+numpy
+scikit-learn
+mlflow
+imbalanced-learn
+xgboost
+shap
+fastapi
+uvicorn[standard]
+streamlit
+requests
+evidently
+joblib
+matplotlib

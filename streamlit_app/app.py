@@ -1,0 +1,86 @@
+"""
+Étape 6 — Interface utilisateur Streamlit.
+
+Permet de saisir manuellement les données d'un client, appelle l'API de
+scoring (Étape 5) et affiche le résultat avec une visualisation simple.
+
+Lancement local :
+    streamlit run streamlit_app/app.py
+
+Variable d'environnement API_URL : à définir pour pointer vers l'API
+déployée dans le cloud (ex: https://mon-api.onrender.com).
+"""
+import os
+
+import requests
+import streamlit as st
+
+API_URL = os.environ.get("API_URL", "http://localhost:8000")
+
+st.set_page_config(page_title="Scoring Crédit", page_icon="💳", layout="centered")
+
+st.title("💳 Simulateur de scoring crédit")
+st.caption(f"API connectée : {API_URL}")
+
+with st.form("client_form"):
+    col1, col2 = st.columns(2)
+
+    with col1:
+        age = st.number_input("Âge", min_value=18, max_value=100, value=35)
+        monthly_income = st.number_input("Revenu mensuel (€)", min_value=0.0, value=3000.0, step=100.0)
+        debt_ratio = st.slider("Taux d'endettement", 0.0, 2.0, 0.3)
+        revolving_utilization = st.slider("Taux d'utilisation du crédit renouvelable", 0.0, 2.0, 0.3)
+        num_credit_lines = st.number_input("Nombre de lignes de crédit", min_value=0, value=5)
+
+    with col2:
+        num_late_30_59 = st.number_input("Retards de paiement (30-59j)", min_value=0, value=0)
+        num_late_60_89 = st.number_input("Retards de paiement (60-89j)", min_value=0, value=0)
+        num_late_90_plus = st.number_input("Retards de paiement (90j+)", min_value=0, value=0)
+        num_dependents = st.number_input("Personnes à charge", min_value=0, value=0)
+        num_real_estate_loans = st.number_input("Prêts immobiliers en cours", min_value=0, value=0)
+
+    submitted = st.form_submit_button("Évaluer le dossier")
+
+if submitted:
+    payload = {
+        "age": age,
+        "monthly_income": monthly_income,
+        "debt_ratio": debt_ratio,
+        "revolving_utilization": revolving_utilization,
+        "num_credit_lines": num_credit_lines,
+        "num_late_30_59": num_late_30_59,
+        "num_late_60_89": num_late_60_89,
+        "num_late_90_plus": num_late_90_plus,
+        "num_dependents": num_dependents,
+        "num_real_estate_loans": num_real_estate_loans,
+    }
+
+    try:
+        response = requests.post(f"{API_URL}/predict", json=payload, timeout=10)
+        response.raise_for_status()
+        result = response.json()
+
+        st.divider()
+        proba = result["default_probability"]
+        st.metric("Probabilité de défaut", f"{proba:.1%}")
+        st.progress(min(proba, 1.0))
+
+        if result["prediction"] == 1:
+            st.error(f"🚫 {result['decision']}")
+        else:
+            st.success(f"✅ {result['decision']}")
+
+        st.caption(
+            f"Modèle : {result['model_name']} | Seuil de décision : {result['threshold_used']}"
+        )
+    except requests.exceptions.RequestException as e:
+        st.error(f"Impossible de contacter l'API ({API_URL}). Détail : {e}")
+
+st.divider()
+with st.expander("ℹ️ À propos du modèle"):
+    st.write(
+        "Ce modèle prédit la probabilité qu'un client fasse défaut sur son "
+        "crédit. Le seuil de décision a été optimisé pour minimiser le coût "
+        "métier (le coût d'un défaut non détecté est pondéré plus fortement "
+        "que celui d'un refus injustifié)."
+    )

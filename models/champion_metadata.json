@@ -1,0 +1,23 @@
+{
+  "name": "random_forest",
+  "run_id": "bb30996bf5714a7ebdae72d55fe83c10",
+  "threshold": 0.42000000000000004,
+  "auc": 0.8647767168968096,
+  "business_gain": 0.7924653970236237,
+  "features": [
+    "revolving_utilization",
+    "age",
+    "num_late_30_59",
+    "debt_ratio",
+    "monthly_income",
+    "num_credit_lines",
+    "num_late_90_plus",
+    "num_real_estate_loans",
+    "num_late_60_89",
+    "num_dependents",
+    "total_late_payments",
+    "income_per_dependent",
+    "has_severe_late_payment",
+    "real_estate_ratio"
+  ]
+}

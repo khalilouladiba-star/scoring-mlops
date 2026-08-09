@@ -1,0 +1,17 @@
+feature,psi,status
+debt_ratio,1.2901,🔴 drift fort
+revolving_utilization,0.3976,🔴 drift fort
+monthly_income,0.0607,🟢 stable
+age,0.0,🟢 stable
+num_credit_lines,0.0,🟢 stable
+num_late_30_59,0.0,🟢 stable
+num_late_60_89,0.0,🟢 stable
+num_late_90_plus,0.0,🟢 stable
+num_dependents,0.0,🟢 stable
+num_real_estate_loans,0.0,🟢 stable
+years_employed,0.0,🟢 stable
+total_late_payments,0.0,🟢 stable
+income_per_dependent,0.0,🟢 stable
+has_severe_late_payment,0.0,🟢 stable
+real_estate_ratio,0.0,🟢 stable
+employment_stability,0.0,🟢 stable

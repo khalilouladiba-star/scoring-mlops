@@ -1,0 +1,60 @@
+name: CI/CD - API de Scoring
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installer les dépendances
+        run: pip install -r requirements.txt
+
+      - name: Vérifier que le modèle champion est présent
+        run: test -f models/champion_model.pkl
+
+      - name: Lancer les tests de l'API
+        run: |
+          pip install pytest httpx
+          pytest tests/ -v
+
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build et push de l'image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: api/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/credit-scoring-api:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      # Exemple pour Render.com : déclenche un déploiement via un "deploy hook".
+      # Adapter selon la plateforme choisie (Heroku, AWS ECS, GCP Cloud Run, etc.)
+      - name: Déclencher le déploiement
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
