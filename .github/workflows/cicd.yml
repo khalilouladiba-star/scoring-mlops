@@ -17,10 +17,14 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Installer les dépendances
+      - name: Installer les dependances
         run: pip install -r requirements.txt
 
-      - name: Vérifier que le modèle champion est présent
+      - name: Verifier que le modele champion est present
         run: test -f models/champion_model.pkl
 
-      - name: Lancer les tests de l'API
+      - name: Installer pytest
+        run: pip install pytest httpx
+
+      - name: Lancer les tests de l API
+        run: pytest tests/ -v
