@@ -71,9 +71,9 @@ if submitted:
     }
 
     try:
-        response = requests.post(f"{API_URL}/predict", json=payload, timeout=10)
+        with st.spinner("Interrogation du modèle... (le premier appel peut prendre jusqu'à 1 minute si l'API se réveille)"):
+            response = requests.post(f"{API_URL}/predict", json=payload, timeout=70)
         response.raise_for_status()
-        result = response.json()
 
         st.divider()
         proba = result["default_probability"]
